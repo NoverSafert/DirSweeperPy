@@ -1,21 +1,42 @@
 from os import path
 import os
 
-
 def isValidPath(currentPath):
 	if path.exists(currentPath) is False:
-		raise Exception("Path not valid")
+		raise NotADirectoryError("Directory not found")
 
 def isValidFile(filePath):
 	directory = path.dirname(filePath)
 	print(directory)
 	isValidPath(directory)
 	if path.isfile(filePath) is False:
-		raise Exception("File not found")
+		raise FileExistsError("FileNotFound")
 
-def hasChildren(currentPath):
-	#hacer una lista con todos los objetos del directorio, iterarsobre estos
-	absolute = path.abspath(currentPath)
-	dirList = list(os.listdir(path.dirname(absolute)))
-	print(dirList)
+def getAbsolutePath(currentPath):
+	return path.abspath(currentPath)
+
+def getDirContents(currentPath):
+	return list(os.listdir(getAbsolutePath(currentPath)))
 	
+##TODO: corregir rutas hijo, idea solución (agregar el currentpath a la dirección dada o convertir todo a un absolute path)
+def getChildrenFolder(currentPath):
+	dirContent = getDirContents(currentPath)
+	removeIndexes = []
+	##quita directorios images y txt
+	for index in range(len(dirContent)):
+		fullPath = currentPath + "\\" + dirContent[index]
+		if not path.isdir(fullPath):
+			removeIndexes.append(dirContent[index])
+		else:
+			dirContent[index] = fullPath
+
+	for toRemove in removeIndexes:
+		dirContent.remove(toRemove)
+
+	if len(dirContent) == 0:
+		return False
+	else:
+		
+		return dirContent
+	
+
