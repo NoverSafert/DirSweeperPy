@@ -1,26 +1,35 @@
 import hashlib
 import fileexplorer
+import json
 
 hashDic = {}
 nextDir = []
 visited = []
 
+def toJson(info):
+	return json.dumps(info, indent=4)
+
+def cleanJson(jsonPayload):
+	cleanedJsonPayload = {}
+	for key, value in jsonPayload.items():
+		if len(jsonPayload[key]) > 1:
+			cleanedJsonPayload[key] = value
+	return toJson(cleanedJsonPayload)
+
+
 def isInDict(hashFile):
 	if hashFile in hashDic:
 		return True
-	return false
+	return False
 
 def addToDict(hashFile, filePath):
-	if not isInDict(hashFile):
-		hashDic[hashfile] = [filePath]
+	hashDic[hashFile] = [filePath]
 	
 def updateDict(hashFile, filePath):
-	if(isInDict(hashFile)):
-		hashDic[hashFile].append(filePath)
+	hashDic[hashFile].append(filePath)
 
 def hashing(filepath):
 	fileexplorer.isValidFile(filepath)
-
 	sha256 = hashlib.sha256()
 
 	with open(filepath, 'rb') as file: 
@@ -30,6 +39,7 @@ def hashing(filepath):
 			sha256.update(chunk)
 
 		return sha256.hexdigest()
+	
 
 def areAllChildrenVisited(children):
 	for child in children:
@@ -38,21 +48,28 @@ def areAllChildrenVisited(children):
 	
 	return True
 
+def analyzeFile(currentPath):
+	files = fileexplorer.getChildrenFiles(currentPath)
+	if not files:
+		return 
+	for file in files:
+		filehash = hashing(file)
+		if isInDict(filehash):
+			updateDict(filehash, file)
+		else:
+			addToDict(filehash, file)
+	return 
 
-# TODO: función para moverse en el stack
 def traverseStack(currentPath):
-	# checar que todos los folders hijo están visitados 
 	children = fileexplorer.getChildrenFolder(currentPath)
 	if children == False or areAllChildrenVisited(children):
 		print("visited" + currentPath)
 		visited.append(currentPath)
-		# TODO: función para agregar hashes
+		analyzeFile(currentPath)
 		nextDir.pop()
 		return 
 	nextDir.extend(children)
 	traverseStack(nextDir[-1])
-
-		
 
 def main():
 	initialPath = input('Input a path\n')
@@ -65,11 +82,10 @@ def main():
 		print("initial path" + nextDir[0])
 		while len(nextDir) > 0:
 			traverseStack(nextDir[-1])
-			
-		#TODO: mientras se tenga algo en el stack 
-		#TODO: si no tiene hijos ver si hay archivos en el camino, si no hay termina 
 		print(len(visited))
-
+		jsonPayload = cleanJson(hashDic)
+		with open('output.json', 'w') as data:
+			data.write(str(jsonPayload))
 	except NotADirectoryError:
 		print('input a valid path')
 

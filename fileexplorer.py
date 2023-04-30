@@ -1,6 +1,7 @@
 from os import path
 import os
 
+
 def isValidPath(currentPath):
 	if path.exists(currentPath) is False:
 		raise NotADirectoryError("Directory not found")
@@ -10,7 +11,7 @@ def isValidFile(filePath):
 	print(directory)
 	isValidPath(directory)
 	if path.isfile(filePath) is False:
-		raise FileExistsError("FileNotFound")
+		raise FileNotFoundError("FileNotFound")
 
 def getAbsolutePath(currentPath):
 	return path.abspath(currentPath)
@@ -40,3 +41,21 @@ def getChildrenFolder(currentPath):
 		return dirContent
 	
 
+def getChildrenFiles(currentPath):
+	dirContent = getDirContents(currentPath)
+	removeIndexes = []
+	for index in range(len(dirContent)):
+		fullPath = currentPath + "\\" + dirContent[index]
+		if path.isdir(fullPath):
+			removeIndexes.append(dirContent[index])
+		else:
+			dirContent[index] = fullPath
+
+	for toRemove in removeIndexes:
+		dirContent.remove(toRemove)
+
+	if len(dirContent) == 0:
+		return False
+	else:
+		
+		return dirContent
