@@ -53,6 +53,7 @@ def analyzeFile(currentPath):
 	if not files:
 		return 
 	for file in files:
+		#TODO: resolver problema de seguridad
 		filehash = hashing(file)
 		if isInDict(filehash):
 			updateDict(filehash, file)

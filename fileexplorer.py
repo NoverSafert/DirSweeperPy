@@ -19,11 +19,9 @@ def getAbsolutePath(currentPath):
 def getDirContents(currentPath):
 	return list(os.listdir(getAbsolutePath(currentPath)))
 	
-##TODO: corregir rutas hijo, idea solución (agregar el currentpath a la dirección dada o convertir todo a un absolute path)
 def getChildrenFolder(currentPath):
 	dirContent = getDirContents(currentPath)
 	removeIndexes = []
-	##quita directorios images y txt
 	for index in range(len(dirContent)):
 		fullPath = currentPath + "\\" + dirContent[index]
 		if not path.isdir(fullPath):
