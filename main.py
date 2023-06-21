@@ -51,7 +51,7 @@ def areAllChildrenVisited(children):
 def analyzeFile(currentPath):
 	files = fileexplorer.getChildrenFiles(currentPath)
 	if not files:
-		return 
+		return False
 	for file in files:
 		#TODO: resolver problema de seguridad
 		filehash = hashing(file)
@@ -64,13 +64,18 @@ def analyzeFile(currentPath):
 def traverseStack(currentPath):
 	children = fileexplorer.getChildrenFolder(currentPath)
 	if children == False or areAllChildrenVisited(children):
-		print("visited" + currentPath)
+		print("visited: " + currentPath)
 		visited.append(currentPath)
 		analyzeFile(currentPath)
 		nextDir.pop()
 		return 
 	nextDir.extend(children)
 	traverseStack(nextDir[-1])
+
+def saveFile():
+	jsonPayload = cleanJson(hashDic)
+	with open('output.json', 'w') as data:
+		data.write(str(jsonPayload))
 
 def main():
 	initialPath = input('Input a path\n')
@@ -79,14 +84,19 @@ def main():
 		initialPath = fileexplorer.getAbsolutePath(initialPath)
 		nextDir.append(initialPath)
 		children = fileexplorer.getChildrenFolder(initialPath)
-		nextDir.extend(children)
-		print("initial path" + nextDir[0])
-		while len(nextDir) > 0:
-			traverseStack(nextDir[-1])
-		print(len(visited))
-		jsonPayload = cleanJson(hashDic)
-		with open('output.json', 'w') as data:
-			data.write(str(jsonPayload))
+		if children != False:  
+			nextDir.extend(children)
+			print("initial path" + nextDir[0])
+			while len(nextDir) > 0:
+				traverseStack(nextDir[-1])
+			print(len(visited))
+			saveFile()
+		elif fileexplorer.getChildrenFiles(initialPath) != False:
+			analyzeFile(initialPath)
+			saveFile()
+		else:
+			print('No files to analyze')
+
 	except NotADirectoryError:
 		print('input a valid path')
 
