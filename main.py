@@ -1,6 +1,7 @@
 import hashlib
 import fileexplorer
 import json
+import click
 
 hashDic = {}
 nextDir = []
@@ -72,13 +73,20 @@ def traverseStack(currentPath):
 	nextDir.extend(children)
 	traverseStack(nextDir[-1])
 
-def saveFile():
+def saveFile(save):
 	jsonPayload = cleanJson(hashDic)
-	with open('output.json', 'w') as data:
+	print(save)
+	saveDirectory = save + 'output.json'
+	with open(saveDirectory, 'w') as data:
 		data.write(str(jsonPayload))
 
-def main():
-	initialPath = input('Input a path\n')
+@click.command()
+@click.argument("path", type=click.Path(exists=True), required=1)
+@click.option("--save", default="/", help="Where to save the output")
+def start(path, save):
+	click.echo(f"path {path}")
+	click.echo(f"save {save}")
+	initialPath = path
 	try:
 		fileexplorer.isValidPath(initialPath)
 		initialPath = fileexplorer.getAbsolutePath(initialPath)
@@ -90,10 +98,10 @@ def main():
 			while len(nextDir) > 0:
 				traverseStack(nextDir[-1])
 			print(len(visited))
-			saveFile()
+			saveFile(save)
 		elif fileexplorer.getChildrenFiles(initialPath) != False:
 			analyzeFile(initialPath)
-			saveFile()
+			saveFile(save)
 		else:
 			print('No files to analyze')
 
@@ -101,4 +109,5 @@ def main():
 		print('input a valid path')
 
 
-main()
+if __name__ == '__main__':
+	start()
