@@ -1,6 +1,8 @@
 from os import path
 import os
 
+## TODO: add exception (skip) for files and folders
+
 
 def isValidPath(currentPath):
 	if path.exists(currentPath) is False:
